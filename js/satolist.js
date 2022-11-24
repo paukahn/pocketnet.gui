@@ -10105,6 +10105,8 @@ Platform = function (app, listofnodes) {
                                         h += '<div class="refaddTable table">'
                                         h += '<div class="imageCell">'
 
+                                        /** TODO PINGWAROVIC: CALL FUNCTION TO CLEAR GIF AVATAR */
+
                                         h += '<div class="usericon" ban=".gif" image="' + (src || '*') + '">'
 
                                         if (!src && letter) {
@@ -25348,6 +25350,8 @@ Platform = function (app, listofnodes) {
 
                 if (gotoprofile) h += link
 
+                /** TODO PINGWAROVIC: CALL FUNCTION TO CLEAR GIF AVATAR */
+
                 h += '<div class="usericon" ban=".gif" image="' + (clearStringXss(src || '') || '*') + '">'
 
                 if (!src && letter){
@@ -25464,6 +25468,7 @@ Platform = function (app, listofnodes) {
                         <div class="cell cellforimage">\
                             <div class="icon">'
 
+                /** TODO PINGWAROVIC: CALL FUNCTION TO CLEAR GIF AVATAR */
 
                 h +=            '<div class="usericon" ban=".gif" image="' + (clearStringXss(json.image || '') || '*') + '">'
                 h +=            '</div>'
