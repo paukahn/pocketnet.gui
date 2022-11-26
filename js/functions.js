@@ -12238,3 +12238,24 @@ class LoadingBar {
 		this.elem.setAttribute('data-loading', !this.stopped);
 	}
 }
+
+async function getAvatarImageBlob(url) {
+	let image = await fetch(url);
+	let imageBlob = await image.blob();
+	let imageBuffer = await imageBlob.arrayBuffer();
+
+	let gifMagic = [...new Uint8Array(imageBuffer.slice(0, 4))].join('');
+
+	let isGif = (gifMagic === '71737056');
+
+	let imageBlobUrl;
+
+	if (isGif) {
+		// TODO PINGWAROVIC: Cut first frame here...
+		// imageBlobUrl = ...;
+	} else {
+		imageBlobUrl = URL.createObjectURL(imageBlob);
+	}
+
+	return imageBlobUrl;
+}
