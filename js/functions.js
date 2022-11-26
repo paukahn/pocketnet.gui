@@ -12240,6 +12240,17 @@ class LoadingBar {
 }
 
 async function getAvatarImageBlob(url) {
+	function cutFirstFrameGif(url) {
+		return gifFrames({ url, frames: 0 })
+			.then(function (frameData) {
+				const blob = new Blob([frameData[0].getImage()._obj], {type: 'image/jpeg'});
+				const img = URL.createObjectURL(blob);
+				return img;
+			}).catch(() => {
+				return 'FRAME_CUT_ERROR';
+			});
+	}
+
 	let image = await fetch(url);
 	let imageBlob = await image.blob();
 	let imageBuffer = await imageBlob.arrayBuffer();
@@ -12251,11 +12262,15 @@ async function getAvatarImageBlob(url) {
 	let imageBlobUrl;
 
 	if (isGif) {
-		// TODO PINGWAROVIC: Cut first frame here...
-		// imageBlobUrl = ...;
-	} else {
-		imageBlobUrl = URL.createObjectURL(imageBlob);
+		imageBlobUrl = await cutFirstFrameGif(imageBlob);
+
+		if (imageBlobUrl !== 'FRAME_CUT_ERROR') {
+			return imageBlobUrl;
+		}
+
+		return false;
 	}
 
+	imageBlobUrl = URL.createObjectURL(imageBlob);
 	return imageBlobUrl;
 }
