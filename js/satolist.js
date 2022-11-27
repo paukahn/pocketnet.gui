@@ -11792,6 +11792,8 @@ Platform = function (app, listofnodes) {
 
                 self.sdk.users.extend(u, state)
 
+                u.image = prepareAvatar(u.image);
+
                 return u
             },
 

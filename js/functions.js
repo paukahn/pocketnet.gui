@@ -12274,3 +12274,31 @@ async function getAvatarImageBlob(url) {
 
 	return imageBlobUrl;
 }
+
+function prepareAvatar(url) {
+	const parsedUrl = new URL(url);
+	const imgHosting = parsedUrl.hostname;
+	const imgFileName = parsedUrl.pathname.slice(1);
+	const imgFileParts = imgFileName.split('.');
+	const imgName = imgFileParts[0];
+	const imgExtension = imgFileParts[1];
+
+	const isOriginalSize = (imgName.length === 7);
+	const isBastyon = (imgHosting.endsWith('bastyon.com'));
+	const isPocketnet = (imgHosting.endsWith('pocketnet.app'));
+
+	if (isBastyon || isPocketnet) {
+		return url;
+	}
+
+	/**
+	 * This block optimize original imgur output
+	 * to small 90x90 thumbnails. The same code
+	 * resolves the animated GIF's issue too.
+	 */
+	if (isOriginalSize) {
+		const urlBase = url.slice(0, -(imgFileName.length + 1));
+
+		return `${urlBase}/${imgName}s.${imgExtension}`;
+	}
+}
