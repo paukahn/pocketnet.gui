@@ -69,7 +69,8 @@ __map =  {
 		"js/vendor/owl/owl.carousel.js",
 		
 		{path : "js/vendor/shadow-popup/popup.js", babelify : true},
-		{path : "js/popups/index.js", babelify : true}
+		{path : "js/popups/index.js", babelify : true},
+		{path : 'js/vendor/gif-frames.min.js', babelify : true},
 	],
 
 	__sourcesfirst : [
