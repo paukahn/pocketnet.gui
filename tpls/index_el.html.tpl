@@ -214,6 +214,7 @@
         <script src="js/vendor/hc-sticky.js"></script>
         <script join src="js/vendor/axios.js"></script>
         <script join src="js/vendor/gif-frames.min.js"></script>
+        <script join src="js/vendor/apng.min.js"></script>
 
         __JSENV__
 

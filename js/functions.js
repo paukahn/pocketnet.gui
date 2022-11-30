@@ -12240,15 +12240,29 @@ class LoadingBar {
 }
 
 async function getAvatarImageBlob(url) {
-	function cutFirstFrameGif(url) {
-		return gifFrames({ url, frames: 0 })
+	function cutFirstFrameGif(imageBlob) {
+		return gifFrames({ url: imageBlob, frames: 0 })
 			.then(function (frameData) {
 				const blob = new Blob([frameData[0].getImage()._obj], {type: 'image/jpeg'});
 				const img = URL.createObjectURL(blob);
 				return img;
-			}).catch(() => {
+			}).catch((err) => {
 				return 'FRAME_CUT_ERROR';
 			});
+	}
+
+	function cutFirstFramePng(imageBuffer) {
+		const parseAPNG = apngjs.default;
+
+		try {
+			const apng = parseAPNG(imageBuffer);
+			const blob = apng.frames[0].imageData;
+			const img = URL.createObjectURL(blob);
+			return img;
+		} catch (err) {
+			return 'FRAME_CUT_ERROR';
+		}
+
 	}
 
 	let image = await fetch(url);
@@ -12257,8 +12271,10 @@ async function getAvatarImageBlob(url) {
 	let imageBuffer = await imageBlob.arrayBuffer();
 
 	let gifMagic = [...new Uint8Array(imageBuffer.slice(0, 4))].join('');
+	let pngMagic = [... new Uint8Array(imageBuffer).slice(0, 8)].join('');
 
 	let isGif = (gifMagic === '71737056');
+	let isPng = (pngMagic === '89504e47da1aa');
 
 	let imageBlobResultUrl;
 
@@ -12272,6 +12288,15 @@ async function getAvatarImageBlob(url) {
 		return false;
 	}
 
+	if (isPng) {
+		imageBlobUrl = cutFirstFramePng(imageBuffer);
+
+		if (imageBlobUrl !== 'FRAME_CUT_ERROR') {
+			return imageBlobUrl;
+		}
+
+		return false;
+	}
 	return imageBlobUrl;
 }
 

@@ -71,6 +71,7 @@ __map =  {
 		{path : "js/vendor/shadow-popup/popup.js", babelify : true},
 		{path : "js/popups/index.js", babelify : true},
 		{path : 'js/vendor/gif-frames.min.js', babelify : true},
+		{path : 'js/vendor/apng.min.js', babelify : true},
 	],
 
 	__sourcesfirst : [
