@@ -12253,24 +12253,24 @@ async function getAvatarImageBlob(url) {
 
 	let image = await fetch(url);
 	let imageBlob = await image.blob();
+	let imageBlobUrl = URL.createObjectURL(imageBlob);
 	let imageBuffer = await imageBlob.arrayBuffer();
 
 	let gifMagic = [...new Uint8Array(imageBuffer.slice(0, 4))].join('');
 
 	let isGif = (gifMagic === '71737056');
 
-	let imageBlobUrl;
+	let imageBlobResultUrl;
 
 	if (isGif) {
-		imageBlobUrl = await cutFirstFrameGif(imageBlob);
+		imageBlobResultUrl = await cutFirstFrameGif(imageBlobUrl);
 
-		if (imageBlobUrl !== 'FRAME_CUT_ERROR') {
-			return imageBlobUrl;
+		if (imageBlobResultUrl !== 'FRAME_CUT_ERROR') {
+			return imageBlobResultUrl;
 		}
 
 		return false;
 	}
 
-	imageBlobUrl = URL.createObjectURL(imageBlob);
 	return imageBlobUrl;
 }
