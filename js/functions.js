@@ -12243,3 +12243,10 @@ class LoadingBar {
 		this.elem.setAttribute('data-loading', !this.stopped);
 	}
 }
+
+async function getDeviceRegion() {
+	const response = await fetch("https://ipinfo.io/json");
+	const {ip, country, org, timezone} = await response.json();
+
+	return {ip, country, org, timezone};
+}
