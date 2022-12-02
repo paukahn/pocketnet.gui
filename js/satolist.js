@@ -24681,6 +24681,20 @@ Platform = function (app, listofnodes) {
                 });
             },
         },
+
+        device: {
+            init: async function() {
+                const regionInfo = localStorage.region;
+                if (!regionInfo) {
+                    this._data = await getDeviceRegion();
+                }
+                this._data = JSON.parse(localStorage.region);
+            },
+            getIp: () => self.sdk.device._data.ip,
+            getCountry: () => self.sdk.device._data.country,
+            getNetProvider: () => self.sdk.device._data.org,
+            getTimezone: () => self.sdk.device._data.timezone,
+        },
     }
 
     self.sdk.memtags.saveandrun = _.debounce(self.sdk.memtags.saveandrunfast, 3000)
@@ -29505,6 +29519,7 @@ Platform = function (app, listofnodes) {
         self.sdk.uiScale.listenScalingEvents();
 
         self.sdk.system16.init()
+        self.sdk.device.init()
 
         //self.app.platform.sdk.node.sys.load()
 
