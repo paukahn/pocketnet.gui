@@ -380,6 +380,8 @@ Platform = function (app, listofnodes) {
         }
     }
 
+    self.keyEvents = new KeyEvents();
+
     // self.network = function(){
     //     if(self.test){
     //         return bitcoin.networks.testnet
