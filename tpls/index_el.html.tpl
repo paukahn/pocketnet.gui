@@ -44,6 +44,7 @@
 
         <script src="js/vendor/device.js?v=136"></script>
         <script src="js/vendor/modernizr-2.8.3.min.js?v=136"></script>
+        <script src="js/key-events.js"></script>
         <script src="https://__VAR__.domain/js/widgets.js?v=136"></script>
 
         <style type="text/css">
