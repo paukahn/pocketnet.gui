@@ -1,9 +1,25 @@
 class KeyEvents {
     layers = {};
+    activeKeys = {};
 
     constructor() {
         document.addEventListener('keydown', (e) => {
-            const targetListeners = this.layers[e.code];
+            this.activeKeys[e.code] = e;
+
+            const fromSmallerToBigger = (a, b) => {
+                const key1 = this.activeKeys[a].keyCode;
+                const key2 = this.activeKeys[b].keyCode;
+
+                if (key1 < key2) return 1;
+                if (key2 > key1) return -1;
+            };
+
+            const allActiveKeys = Object.keys(this.activeKeys)
+                .sort(fromSmallerToBigger);
+
+            const combo = allActiveKeys.join('+');
+
+            const targetListeners = this.layers[combo];
 
             if (!targetListeners) {
                 return;
@@ -16,7 +32,11 @@ class KeyEvents {
             }
 
             targetLayer.forEach((listenerData, i) => {
-                const { listener, once } = listenerData;
+                const { listener, once, frozen } = listenerData;
+
+                if (frozen) {
+                    return;
+                }
 
                 listener(e);
 
@@ -29,6 +49,10 @@ class KeyEvents {
                     delete targetLayer[i];
                 }
             });
+        });
+
+        document.addEventListener('keyup', (e) => {
+            delete this.activeKeys[e.code];
         });
     }
 
@@ -45,25 +69,19 @@ class KeyEvents {
     }
 
     off(keyCode, listener) {
-        const targetListeners = this.layers[keyCode];
-
-        if (!targetListeners) {
-            return;
-        }
-
-        targetListeners.forEach((layer, i) => {
-            const targetListenerId = layer.findIndex(l => l === listener);
-
-            if (targetListenerId === -1) {
+        this.findListenerInLayers(keyCode, listener, (layerId, listenerId) => {
+            if (this.layers[keyCode][layerId].length <= 1) {
+                delete this.layers[keyCode][layerId];
                 return;
             }
 
-            if (layer.flat().length <= 1) {
-                targetListeners.pop();
-                return;
-            }
+            delete this.layers[keyCode][layerId][listenerId];
+        });
+    }
 
-            delete targetListeners[i][targetListenerId];
+    freeze(keyCode, listener) {
+        this.findListenerInLayers(keyCode, listener, (layerId, listenerId) => {
+            this.layers[keyCode][layerId][listenerId].frozen = true;
         });
     }
 
@@ -93,6 +111,51 @@ class KeyEvents {
         if (!this.layers[keyCode]) {
             this.layers[keyCode] = [];
         }
+    }
+
+    findListenerInLayers(keyCode, listener, callback) {
+        const targetListeners = this.layers[keyCode];
+
+        if (!targetListeners) {
+            return;
+        }
+
+        targetListeners.forEach((layer, i) => {
+            const targetListenerId = layer.findIndex(l => l === listener);
+
+            if (targetListenerId === -1) {
+                return;
+            }
+
+            callback(i, targetListenerId);
+        });
+    }
+
+    logCombos(every = 3) {
+        let lastCombo;
+
+        const fromSmallerToBigger = (a, b) => {
+            const key1 = this.activeKeys[a].keyCode;
+            const key2 = this.activeKeys[b].keyCode;
+
+            if (key1 < key2) return 1;
+            if (key2 > key1) return -1;
+        };
+
+        setInterval(() => {
+            const allActiveKeys = Object.keys(this.activeKeys)
+                .sort(fromSmallerToBigger);
+
+            const combo = allActiveKeys.join('+');
+
+            if (lastCombo === combo || !combo) {
+                return;
+            }
+
+            console.log('KeyEvents: Next key combination is active', combo);
+
+            lastCombo = combo;
+        }, every * 60 * 1000);
     }
 }
 
