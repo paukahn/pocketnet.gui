@@ -127,7 +127,7 @@ class KeyEvents {
         }
 
         targetListeners.forEach((layer, i) => {
-            const targetListenerId = layer.findIndex(l => l === listener);
+            const targetListenerId = layer.findIndex(l => l.listener === listener);
 
             if (targetListenerId === -1) {
                 return;
