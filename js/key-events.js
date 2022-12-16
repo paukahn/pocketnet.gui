@@ -157,7 +157,7 @@ class KeyEvents {
             console.log('KeyEvents: Next key combination is active', combo);
 
             lastCombo = combo;
-        }, every * 60 * 1000);
+        }, every * 1000);
     }
 }
 
