@@ -85,6 +85,12 @@ class KeyEvents {
         });
     }
 
+    unfreeze(keyCode, listener) {
+        this.findListenerInLayers(keyCode, listener, (layerId, listenerId) => {
+            this.layers[keyCode][layerId][listenerId].frozen = false;
+        });
+    }
+
     createListener(keyCode, listener, layer, once) {
         if (Array.isArray(layer)) {
             this.layers[layer[0]][layer[1]].push({ listener, once });
