@@ -57,13 +57,13 @@ class KeyEvents {
     }
 
     on(keyCode, listener, layer) {
-        this.createLayerIfNotExist();
+        this.createLayerIfNotExist(keyCode);
 
         this.createListener(keyCode, listener, layer);
     }
 
     once(keyCode, listener, layer) {
-        this.createLayerIfNotExist();
+        this.createLayerIfNotExist(keyCode);
 
         this.createListener(keyCode, listener, layer, true);
     }
@@ -95,10 +95,6 @@ class KeyEvents {
         if (Array.isArray(layer)) {
             this.layers[layer[0]][layer[1]].push({ listener, once });
             return [layer[0], layer[1]];
-        }
-
-        if (!this.layers[keyCode]) {
-            this.layers[keyCode] = [];
         }
 
         let newElemNum = this.layers[keyCode].length;
