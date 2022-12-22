@@ -1,3 +1,36 @@
+class KeyEvent {
+    constructor(handler, keyCode, layerId, eventId) {
+        this.handler = handler;
+        this.keyCode = keyCode;
+        this.layerId = layerId;
+        this.eventId = eventId;
+    }
+
+    off() {
+        const keyCode = this.keyCode;
+        const layerId = this.layerId;
+        const eventId = this.eventId;
+
+        delete this.handler.layers[keyCode][layerId][eventId];
+    }
+
+    freeze() {
+        const keyCode = this.keyCode;
+        const layerId = this.layerId;
+        const eventId = this.eventId;
+
+        this.handler.layers[keyCode][layerId][eventId].frozen = true;
+    }
+
+    unfreeze() {
+        const keyCode = this.keyCode;
+        const layerId = this.layerId;
+        const eventId = this.eventId;
+
+        this.handler.layers[keyCode][layerId][eventId].frozen = false;
+    }
+}
+
 class KeyEvents {
     layers = {};
     activeKeys = {};
@@ -59,16 +92,22 @@ class KeyEvents {
     on(keyCode, listener, layer) {
         this.createLayerIfNotExist(keyCode);
 
-        this.createListener(keyCode, listener, layer);
+        return this.createListener(keyCode, listener, layer);
     }
 
     once(keyCode, listener, layer) {
         this.createLayerIfNotExist(keyCode);
 
-        this.createListener(keyCode, listener, layer, true);
+        return this.createListener(keyCode, listener, layer, true);
     }
 
     off(keyCode, listener) {
+        if (listener instanceof KeyEvent) {
+            const listenerId = listener.eventId;
+            delete this.layers[keyCode][listenerId];
+            return;
+        }
+
         this.findListenerInLayers(keyCode, listener, (layerId, listenerId) => {
             if (this.layers[keyCode][layerId].length <= 1) {
                 delete this.layers[keyCode][layerId];
@@ -80,33 +119,45 @@ class KeyEvents {
     }
 
     freeze(keyCode, listener) {
+        if (listener instanceof KeyEvent) {
+            const listenerId = listener.eventId;
+            this.layers[keyCode][listenerId].frozen = true;
+            return;
+        }
+
         this.findListenerInLayers(keyCode, listener, (layerId, listenerId) => {
             this.layers[keyCode][layerId][listenerId].frozen = true;
         });
     }
 
     unfreeze(keyCode, listener) {
+        if (listener instanceof KeyEvent) {
+            const listenerId = listener.eventId;
+            this.layers[keyCode][listenerId].frozen = false;
+            return;
+        }
+
         this.findListenerInLayers(keyCode, listener, (layerId, listenerId) => {
             this.layers[keyCode][layerId][listenerId].frozen = false;
         });
     }
 
     createListener(keyCode, listener, layer, once) {
-        if (Array.isArray(layer)) {
-            this.layers[layer[0]][layer[1]].push({ listener, once });
-            return [layer[0], layer[1]];
+        if (Number.isInteger(layer)) {
+            this.layers[keyCode][layer].push({ listener, once });
+            return new KeyEvent(this, keyCode, layer, this.layers[keyCode][layer].length - 1);
         }
 
-        let newElemNum = this.layers[keyCode].length;
+        let newLayerNum = this.layers[keyCode].length;
 
-        if (layer === true || newElemNum === 0) {
-            this.layers[keyCode][newElemNum] = [{ listener, once }];
-            return [keyCode, newElemNum];
+        if (layer === true || newLayerNum === 0) {
+            this.layers[keyCode][newLayerNum] = [{ listener, once }];
+            return new KeyEvent(this, keyCode, newLayerNum, 0);
         }
 
-        this.layers[keyCode][newElemNum - 1].push({ listener, once });
+        this.layers[keyCode][newLayerNum - 1].push({ listener, once });
 
-        return [keyCode, newElemNum];
+        return new KeyEvent(this, keyCode, this.layers[keyCode][newLayerNum - 1].length - 1);
     }
 
     createLayerIfNotExist(keyCode) {
