@@ -37,17 +37,32 @@ class KeyEvents {
 
     constructor() {
         document.addEventListener('keydown', (e) => {
-            this.activeKeys[e.code] = e;
+            this.activeKeys[e.code] = {
+                event: e,
+                timeoutAfter: Date.now() + 5000,
+            };
+
+            const timedOut = (key) => {
+                const isTimeout = (this.activeKeys[key].timeoutAfter < Date.now());
+
+                if (isTimeout) {
+                    delete this.activeKeys[key];
+                    return false;
+                }
+
+                return true;
+            };
 
             const fromSmallerToBigger = (a, b) => {
-                const key1 = this.activeKeys[a].keyCode;
-                const key2 = this.activeKeys[b].keyCode;
+                const key1 = this.activeKeys[a].event.keyCode;
+                const key2 = this.activeKeys[b].event.keyCode;
 
                 if (key1 < key2) return 1;
                 if (key2 > key1) return -1;
             };
 
             const allActiveKeys = Object.keys(this.activeKeys)
+                .filter(timedOut)
                 .sort(fromSmallerToBigger);
 
             const combo = allActiveKeys.join('+');
@@ -188,8 +203,8 @@ class KeyEvents {
         let lastCombo;
 
         const fromSmallerToBigger = (a, b) => {
-            const key1 = this.activeKeys[a].keyCode;
-            const key2 = this.activeKeys[b].keyCode;
+            const key1 = this.activeKeys[a].event.keyCode;
+            const key2 = this.activeKeys[b].event.keyCode;
 
             if (key1 < key2) return 1;
             if (key2 > key1) return -1;
